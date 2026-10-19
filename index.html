@@ -1,0 +1,2458 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --primary: #0BC9A4;
+    --primary-dark: #09A887;
+    --primary-text: #07977A;
+    --primary-light: #E0F8F4;
+    --bg: #FAFAFA;
+    --border: #EDEDED;
+    --shadow: 0 2px 6px rgba(0,0,0,.05), 0 10px 28px rgba(0,0,0,.09);
+    --text: #1E1E1E;
+    --muted: #6b7280;
+    --bad: #E5484D;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Roboto, Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
+  .container { width: 94%; max-width: 1500px; margin: 30px auto; }
+
+  /* ===== HEADER ===== */
+  .header { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: #fff; color: var(--text); border: 1px solid var(--border); border-radius: 18px; padding: 28px 34px 28px 38px; margin-bottom: 20px; box-shadow: 0 6px 26px rgba(11,201,164,.14), 0 2px 6px rgba(0,0,0,.05); overflow: hidden; }
+  .header::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: linear-gradient(180deg, var(--primary), var(--primary-dark)); }
+  .header-title-row { display: flex; align-items: center; gap: 14px; }
+  .header-icon { width: 50px; height: 50px; flex-shrink: 0; border-radius: 14px; background: linear-gradient(135deg, #E6FBF5, #C9F5EA); display: flex; align-items: center; justify-content: center; font-size: 26px; }
+  .header h1 { margin: 0; font-size: 29px; line-height: 1.15; }
+  .header p { margin: 4px 0 0; font-size: 16px; color: var(--muted); }
+  .user-pill { margin: 12px 0 0 64px; display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px 5px 6px; border-radius: 30px; background: #F1F6F5; font-size: 13px; color: #3C4D49; }
+  .user-avatar { width: 21px; height: 21px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+  .header-logo { height: 54px; width: auto; flex-shrink: 0; display: block; }
+  @keyframes logoIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+  .header-logo { animation: logoIn .8s ease-out; transition: transform .25s; }
+  .header-logo:hover { transform: scale(1.08) rotate(-2deg); }
+  @media (prefers-reduced-motion: reduce) { .header-logo { animation: none; transition: none; } .header-logo:hover { transform: none; } }
+
+  .month-bar { display: none; align-items: center; gap: 12px; flex-wrap: wrap; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 12px 18px; margin-bottom: 20px; box-shadow: var(--shadow); }
+  .month-bar label { font-weight: bold; font-size: 14px; }
+  .month-bar select { padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; font-weight: bold; background: #fff; color: var(--text); }
+  .month-tag { font-size: 12px; font-weight: bold; padding: 3px 10px; border-radius: 20px; background: var(--primary-light); color: var(--primary-text); }
+  .month-tag.past { background: #FFF4E5; color: #B45309; }
+  .top-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .card, .section { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
+  .section { margin-bottom: 20px; }
+  .card h2 { margin-top: 0; margin-bottom: 20px; font-size: 20px; }
+  .inputs-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .input-box label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 7px; color: var(--text); }
+  input[type="number"] { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; outline: none; }
+  input[type="number"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+  .paste-hint { font-size: 12px; color: var(--muted); margin-top: 12px; }
+  .target-box { margin-bottom: 18px; max-width: 180px; }
+  .buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  button { border: none; border-radius: 10px; padding: 11px 17px; font-weight: bold; cursor: pointer; transition: .2s; }
+  button:hover { transform: translateY(-1px); }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-success { background: var(--text); color: #fff; }
+  .btn-danger { background: var(--bad); color: #fff; }
+  .btn-secondary { background: var(--primary-light); color: var(--text); }
+  .result-value { font-size: 52px; font-weight: 800; margin: 10px 0; }
+  .status { font-size: 16px; font-weight: bold; margin-bottom: 18px; }
+  .status.good { color: var(--primary-text); }
+  .status.bad { color: var(--bad); }
+  .needed { background: var(--primary-light); border-radius: 12px; padding: 14px; line-height: 1.5; }
+  .comparison { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+  .comparison-box, .dashboard-box { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; box-shadow: var(--shadow); }
+  .comparison-box small { display: block; color: var(--muted); margin-bottom: 7px; }
+  .comparison-box strong { font-size: 20px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 18px; }
+  .section-header h2 { margin: 0; font-size: 20px; }
+  .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; }
+  .dashboard-box { padding: 20px; border-radius: 14px; }
+  .dashboard-box .label { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+  .dashboard-box .number { font-size: 27px; font-weight: 800; }
+  .table-wrapper { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 850px; }
+  th { background: var(--primary-light); padding: 13px 10px; text-align: center; font-size: 13px; white-space: nowrap; }
+  td { padding: 12px 10px; border-bottom: 1px solid var(--border); text-align: center; font-size: 13px; white-space: nowrap; }
+  tr:hover td { background: #F2FBF9; }
+  .csat-good { color: var(--primary-text); font-weight: bold; }
+  .csat-bad { color: var(--bad); font-weight: bold; }
+  .delete-btn { background: #fee2e2; color: #b91c1c; padding: 7px 10px; font-size: 12px; }
+  .chart-wrapper { position: relative; width: 100%; height: 430px; margin-top: 20px; }
+  #monthlyChart { width: 100%; height: 100%; display: block; }
+  .empty { text-align: center; padding: 30px; color: var(--muted); }
+  .toast { position: fixed; right: 25px; bottom: 25px; background: var(--text); color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,.2); display: none; z-index: 9999; }
+  @media (max-width: 950px) {
+    .top-grid { grid-template-columns: 1fr; }
+    .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+    .inputs-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .container { width: 96%; }
+    .inputs-grid { grid-template-columns: repeat(2, 1fr); }
+    .dashboard-grid { grid-template-columns: 1fr 1fr; }
+    .comparison { grid-template-columns: 1fr; }
+    .header { padding: 20px 20px 20px 24px; }
+    .header h1 { font-size: 22px; }
+    .header p { font-size: 14px; }
+    .header-logo { height: 36px; }
+    .user-pill { margin-left: 0; }
+  }
+  input[type="text"] { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; outline: none; }
+  input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+  .metric-table table { min-width: 0; }
+  /* ===== TABS ===== */
+  .tabs { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 20px; }
+  .tab-btn { background: #fff; color: var(--text); border: 1px solid var(--border); border-radius: 16px; padding: 12px 26px; font-size: 16px; font-weight: 700; line-height: 1.2; white-space: nowrap; box-shadow: var(--shadow); }
+  .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .tabs-right { margin-left: auto; display: flex; gap: 12px; flex-wrap: wrap; }
+  .tab-btn.reset-btn { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
+  .tab-btn.reset-btn:hover { background: #fecaca; }
+  .dash-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px; }
+  .dash-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
+  .dash-title { font-size: 20px; font-weight: 700; }
+  .dash-value { font-size: 48px; font-weight: 800; margin: 10px 0 6px; }
+  .dash-row { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border); font-size: 14px; }
+  .dash-row span { color: var(--muted); }
+  @media (max-width: 950px) { .dash-cards { grid-template-columns: 1fr; } }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 9998; padding: 16px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 16px; padding: 28px; width: 100%; max-width: 460px; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+  .modal h3 { margin: 0 0 10px; font-size: 20px; }
+  .modal p { margin: 0 0 22px; line-height: 1.6; color: var(--muted); font-size: 14px; }
+  .modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .eval-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; max-width: 560px; }
+  .eval-row .eval-input { width: 110px; }
+  .add-eval-btn { width: 46px; height: 46px; padding: 0; border-radius: 12px; background: var(--primary-light); color: var(--primary-text); font-size: 26px; font-weight: 800; line-height: 1; }
+  .add-eval-btn:hover { background: var(--primary); color: #fff; }
+  .team-pill { margin-left: 10px; }
+  .team-pill select { border: none; background: transparent; font-weight: bold; font-size: 13px; color: #3C4D49; outline: none; cursor: pointer; }
+  .dash-weight { font-size: 12px; font-weight: 600; color: var(--muted); background: #F1F6F5; padding: 3px 9px; border-radius: 20px; margin-left: 6px; vertical-align: middle; }
+  .kpi-wrap { display: flex; flex-direction: column; align-items: center; }
+  .kpi-main { background: var(--primary-light); border-radius: 16px; padding: 18px 44px; text-align: center; min-width: 280px; }
+  .kpi-main .kpi-label { font-size: 15px; font-weight: 700; }
+  .kpi-main .kpi-big { font-size: 52px; font-weight: 800; line-height: 1.15; }
+  .kpi-main .kpi-sub { font-size: 12px; color: var(--muted); }
+  .kpi-arrows { display: grid; grid-template-columns: 1fr 1fr; width: 100%; font-size: 44px; color: var(--primary); line-height: 1.1; margin: 6px 0; }
+  .kpi-arrows span:first-child { text-align: right; padding-right: 36px; }
+  .kpi-arrows span:last-child { text-align: left; padding-left: 36px; }
+  .kpi-results { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+  .kpi-result { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px; text-align: center; box-shadow: var(--shadow); }
+  .kpi-result.ok { border-color: var(--primary); }
+  .kpi-result.late { border-color: #fecaca; }
+  .kpi-result .kpi-title { font-weight: 700; font-size: 15px; }
+  .kpi-result .kpi-note { color: var(--muted); font-size: 13px; margin: 6px 0; }
+  .kpi-result .kpi-big { font-size: 38px; font-weight: 800; }
+  @media (max-width: 600px) { .kpi-results { grid-template-columns: 1fr; } .kpi-arrows { font-size: 34px; } }
+  @media (max-width: 600px) { .tabs, .tabs-right { gap: 8px; } .tab-btn { padding: 10px 14px; font-size: 14px; } }
+  .team-note { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+  .team-note strong { color: var(--primary-text); background: var(--primary-light); padding: 3px 10px; border-radius: 20px; margin-left: 4px; }
+  .warn-box { background: #FFF4E5; color: #B45309; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 14px; line-height: 1.6; }
+  .dashboard-grid.four { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 950px) { .dashboard-grid.four { grid-template-columns: repeat(2, 1fr); } }
+  .overall-note { text-align: center; color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div>
+      <div class="header-title-row">
+        <div class="header-icon">📊</div>
+        <div>
+          <h1>KPIs Calculator</h1>
+        </div>
+      </div>
+      <div class="user-pill">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <span id="userEmail">Loading user...</span>
+      </div>
+      <div class="user-pill team-pill">
+        <span>Team</span>
+        <select id="teamSelect" onchange="changeTeam(this.value)">
+          <option value="calls">Calls</option>
+          <option value="tickets">Tickets</option>
+        </select>
+      </div>
+    </div>
+    <img class="header-logo" alt="Axis" src="data:image/png;base64,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">
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tabBtn-csat" onclick="switchTab('csat')">CSAT</button>
+    <button class="tab-btn" id="tabBtn-aht" onclick="switchTab('aht')">AHT</button>
+    <button class="tab-btn" id="tabBtn-quality" onclick="switchTab('quality')">Quality</button>
+    <button class="tab-btn" id="tabBtn-productivity" onclick="switchTab('productivity')">Productivity</button>
+
+    <div class="tabs-right">
+      <button class="tab-btn" id="tabBtn-dashboard" onclick="switchTab('dashboard')">📊 Dashboard</button>
+      <button class="tab-btn reset-btn" onclick="openResetModal()"> Reset</button>
+    </div>
+  </div>
+
+  <!-- ===== TAB: CSAT ===== -->
+  <div class="tab-panel active" id="tab-csat">
+  <div class="team-note">Recording as <strong class="team-name">Calls</strong></div>
+  <!-- MONTH PICKER -->
+  <div class="month-bar" id="monthBar">
+    <label for="monthSelect">Month</label>
+    <select id="monthSelect" onchange="changeMonth(this.value)"></select>
+    <span class="month-tag" id="monthTag"></span>
+  </div>
+
+  <div class="top-grid">
+
+    <!-- CSAT ENTRY -->
+    <div class="card">
+      <h2> CSAT Entry</h2>
+
+      <div class="target-box">
+        <div class="input-box">
+          <label>Target CSAT %</label>
+          <input type="number" id="target" value="93" min="0" max="100" step="0.01" oninput="refreshMonthlyStatus()">
+        </div>
+      </div>
+
+      <div class="inputs-grid" id="csatInputsGrid">
+        <div class="input-box"><label>Level 1</label><input type="number" id="level1" value="0" min="0"></div>
+        <div class="input-box"><label>Level 2</label><input type="number" id="level2" value="0" min="0"></div>
+        <div class="input-box"><label>Level 3</label><input type="number" id="level3" value="0" min="0"></div>
+        <div class="input-box"><label>Level 4</label><input type="number" id="level4" value="0" min="0"></div>
+        <div class="input-box"><label>Level 5</label><input type="number" id="level5" value="0" min="0"></div>
+      </div>
+
+      <div class="paste-hint" id="csatHint">💡 Tip: copy 5 numbers (Level 1 → Level 5) and paste them into any Level box to fill all of them at once. You can still type manually</div>
+
+      <div class="buttons">
+        <button class="btn-primary" onclick="calculateCurrent()">Calculate CSAT</button>
+        <button class="btn-success" onclick="saveEntry()">Save Entry</button>
+        <button class="btn-secondary" onclick="resetInputs()">Reset</button>
+      </div>
+    </div>
+
+    <!-- MONTHLY RESULT -->
+    <div class="card">
+      <h2> Monthly Result</h2>
+      <div id="csatValue" class="result-value">0.00%</div>
+      <div id="status" class="status">No data yet</div>
+      <div id="needed" class="needed">Enter your CSAT data to see the result.</div>
+
+      <div class="comparison">
+        <div class="comparison-box"><small>Previous Entry</small><strong id="previousEntry">—</strong></div>
+        <div class="comparison-box"><small>Current Entry</small><strong id="currentEntry">—</strong></div>
+        <div class="comparison-box"><small>Change</small><strong id="entryDifference">—</strong></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MONTHLY DASHBOARD -->
+  <div class="section">
+    <div class="section-header"><h2> Monthly Dashboard</h2></div>
+    <div class="dashboard-grid" id="csatDashGrid">
+      <div class="dashboard-box"><div class="label">Total Responses</div><div class="number" id="dashboardTotal">0</div></div>
+      <div class="dashboard-box"><div class="label" id="dashPosLabel">Positive</div><div class="number" id="dashboardPositive">0</div></div>
+      <div class="dashboard-box" id="dashMidBox"><div class="label">Mid</div><div class="number" id="dashboardMid">0</div></div>
+      <div class="dashboard-box"><div class="label" id="dashNegLabel">Negative</div><div class="number" id="dashboardNegative">0</div></div>
+      <div class="dashboard-box"><div class="label">Entries</div><div class="number" id="dashboardEntries">0</div></div>
+    </div>
+  </div>
+
+  <!-- TODAY'S ENTRIES -->
+  <div class="section">
+    <div class="section-header"><h2> Today's Entries</h2></div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr id="entriesHead"><th>Time</th><th>Level 1</th><th>Level 2</th><th>Level 3</th><th>Level 4</th><th>Level 5</th><th>Total</th><th>CSAT</th><th>Action</th></tr>
+        </thead>
+        <tbody id="entriesBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MONTHLY DAILY BREAKDOWN -->
+  <div class="section">
+    <div class="section-header">
+      <h2> Monthly Daily Breakdown</h2>
+      <button class="btn-primary" onclick="exportReport()"> Export Report</button>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr id="monthlyHead"><th>Date</th><th>Responses</th><th>CSAT</th><th>Level 1</th><th>Level 2</th><th>Level 3</th><th>Level 4</th><th>Level 5</th></tr>
+        </thead>
+        <tbody id="monthlyBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MONTHLY CHART -->
+  <div class="section">
+    <div class="section-header"><h2 id="csatChartTitle">📈 Monthly Positive / Mid / Negative</h2></div>
+    <div class="chart-wrapper"><canvas id="monthlyChart"></canvas></div>
+  </div>
+
+  </div>
+
+  <!-- ===== TAB: DASHBOARD ===== -->
+  <div class="tab-panel" id="tab-dashboard">
+    <div class="section">
+      <div class="section-header">
+        <h2> Month to Date Dashboard</h2>
+        <span class="month-tag" id="dashMonthTag"></span>
+      </div>
+    </div>
+    <div id="dashSections"></div>
+  </div>
+
+  <!-- ===== TAB: PRODUCTIVITY ===== -->
+  <div class="tab-panel" id="tab-productivity">
+  <div class="team-note">Recording as <strong class="team-name">Calls</strong></div>
+<!-- ===================== Productivity ===================== -->
+<div class="top-grid">
+
+  <div class="card">
+    <h2> Productivity Entry</h2>
+
+    <div class="target-box">
+      <div class="input-box">
+        <label id="productivityTargetLabel">Target (per day)</label>
+        <input type="text" id="productivityTarget" value="90" oninput="saveProdTarget(this.value)">
+      </div>
+    </div>
+
+    <div class="input-box" style="max-width:240px">
+      <label>Count (tickets / calls)</label>
+      <input type="text" id="productivityValue" placeholder="80" onkeydown="if(event.key==='Enter')saveMetric('productivity')">
+    </div>
+
+    <div class="paste-hint">💡 Tip: enter the number of tickets or calls you handled. </div>
+
+    <div class="buttons">
+      <button class="btn-success" onclick="saveMetric('productivity')">Save Entry</button>
+      <button class="btn-secondary" onclick="resetMetricInput('productivity')">Reset</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2> Productivity Today's Result</h2>
+    <div id="productivityAvg" class="result-value">—</div>
+    <div id="productivityStatus" class="status">No data yet</div>
+    <div id="productivityNeeded" class="needed">Enter your Productivity data to see the result.</div>
+
+    <div class="comparison">
+      <div class="comparison-box"><small>Previous Entry</small><strong id="productivityPrevious">—</strong></div>
+      <div class="comparison-box"><small>Current Entry</small><strong id="productivityCurrent">—</strong></div>
+      <div class="comparison-box"><small>Change</small><strong id="productivityChange">—</strong></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <div class="section-header"><h2> Productivity Monthly Dashboard</h2></div>
+  <div class="dashboard-grid">
+    <div class="dashboard-box"><div class="label">Entries</div><div class="number" id="productivityDashEntries">0</div></div>
+    <div class="dashboard-box"><div class="label">Days Logged</div><div class="number" id="productivityDashDays">0</div></div>
+    <div class="dashboard-box"><div class="label">Best Day</div><div class="number" id="productivityDashBest">—</div></div>
+    <div class="dashboard-box"><div class="label">Worst Day</div><div class="number" id="productivityDashWorst">—</div></div>
+    <div class="dashboard-box"><div class="label">Daily Average</div><div class="number" id="productivityDashAvg">—</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header"><h2> Productivity Today's Entries</h2></div>
+  <div class="table-wrapper metric-table">
+    <table>
+      <thead><tr><th>Time</th><th>Productivity</th><th>Action</th></tr></thead>
+      <tbody id="productivityTodayBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <h2> Productivity Monthly Daily Breakdown</h2>
+    <button class="btn-primary" onclick="exportMetric('productivity')"> Export Report</button>
+  </div>
+  <div class="table-wrapper metric-table">
+    <table>
+      <thead><tr><th>Date</th><th>Entries</th><th>Day Total</th></tr></thead>
+      <tbody id="productivityDaysBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header"><h2> Productivity Daily Total vs Target</h2></div>
+  <div class="chart-wrapper"><canvas id="productivityChart"></canvas></div>
+</div>
+  </div>
+
+  <!-- ===== TAB: AHT ===== -->
+  <div class="tab-panel" id="tab-aht">
+  <div class="team-note">Recording as <strong class="team-name">Calls</strong></div>
+<!-- ===================== AHT ===================== -->
+<div class="top-grid">
+
+  <div class="card">
+    <h2> AHT Entry</h2>
+
+    <div class="target-box">
+      <div class="input-box">
+        <label>Target (mm:ss)</label>
+        <input type="text" id="ahtTarget" value="04:00" oninput="renderMetric('aht')">
+      </div>
+    </div>
+
+    <div class="input-box" style="max-width:240px">
+      <label>Day average (mm:ss)</label>
+      <input type="text" id="ahtValue" placeholder="03:42" onkeydown="if(event.key==='Enter')saveMetric('aht')">
+    </div>
+
+    <div class="paste-hint">💡 Tip: enter your average handle time for the day as mm:ss. </div>
+
+    <div class="buttons">
+      <button class="btn-success" onclick="saveMetric('aht')">Save Entry</button>
+      <button class="btn-secondary" onclick="resetMetricInput('aht')">Reset</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2> AHT Monthly Result</h2>
+    <div id="ahtAvg" class="result-value">—</div>
+    <div id="ahtStatus" class="status">No data yet</div>
+    <div id="ahtNeeded" class="needed">Enter your AHT data to see the result.</div>
+
+    <div class="comparison">
+      <div class="comparison-box"><small>Previous Entry</small><strong id="ahtPrevious">—</strong></div>
+      <div class="comparison-box"><small>Current Entry</small><strong id="ahtCurrent">—</strong></div>
+      <div class="comparison-box"><small>Change</small><strong id="ahtChange">—</strong></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <div class="section-header"><h2> AHT Monthly Dashboard</h2></div>
+  <div class="dashboard-grid four">
+    <div class="dashboard-box"><div class="label">Entries</div><div class="number" id="ahtDashEntries">0</div></div>
+    <div class="dashboard-box"><div class="label">Best Day</div><div class="number" id="ahtDashBest">—</div></div>
+    <div class="dashboard-box"><div class="label">Worst Day</div><div class="number" id="ahtDashWorst">—</div></div>
+    <div class="dashboard-box"><div class="label">Monthly Average</div><div class="number" id="ahtDashAvg">—</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header"><h2> AHT Today's Entries</h2></div>
+  <div class="table-wrapper metric-table">
+    <table>
+      <thead><tr><th>Time</th><th>AHT</th><th>Action</th></tr></thead>
+      <tbody id="ahtTodayBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <h2> AHT Monthly Daily Breakdown</h2>
+    <button class="btn-primary" onclick="exportMetric('aht')"> Export Report</button>
+  </div>
+  <div class="table-wrapper metric-table">
+    <table>
+      <thead><tr><th>Date</th><th>Entries</th><th>Average</th></tr></thead>
+      <tbody id="ahtDaysBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header"><h2> AHT Daily Average vs Target</h2></div>
+  <div class="chart-wrapper"><canvas id="ahtChart"></canvas></div>
+</div>
+  </div>
+
+  <!-- ===== TAB: QUALITY ===== -->
+  <div class="tab-panel" id="tab-quality">
+  <div class="team-note">Recording as <strong class="team-name">Calls</strong></div>
+<!-- ===================== Quality ===================== -->
+<div class="top-grid">
+
+  <div class="card">
+    <h2> Quality Entry</h2>
+
+    <div class="target-box">
+      <div class="input-box">
+        <label>Target %</label>
+        <input type="text" id="qualityTarget" value="95" oninput="renderMetric('quality')">
+      </div>
+    </div>
+
+    <div class="input-box">
+      <label>Monitoring scores %</label>
+      <div class="eval-row" id="qualityInputs">
+        <input type="text" class="eval-input" placeholder="88" onkeydown="if(event.key==='Enter')saveMetric('quality')">
+        <input type="text" class="eval-input" placeholder="94" onkeydown="if(event.key==='Enter')saveMetric('quality')">
+        <button type="button" class="add-eval-btn" id="addEvalBtn" onclick="addEvalInput()" title="Add another score">+</button>
+      </div>
+    </div>
+
+    <div class="paste-hint">💡 Tip: write each monitoring score in its own box and press + to add more boxes.</div>
+
+    <div class="buttons">
+      <button class="btn-primary" onclick="calculateQuality()">Calculate Quality</button>
+      <button class="btn-success" onclick="saveMetric('quality')">Save Entry</button>
+      <button class="btn-secondary" onclick="resetMetricInput('quality')">Reset</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2> Quality Monthly Result</h2>
+    <div id="qualityAvg" class="result-value">—</div>
+    <div id="qualityStatus" class="status">No data yet</div>
+    <div id="qualityNeeded" class="needed">Enter your Quality data to see the result.</div>
+
+    <div class="comparison">
+      <div class="comparison-box"><small>Previous Entry</small><strong id="qualityPrevious">—</strong></div>
+      <div class="comparison-box"><small>Current Entry</small><strong id="qualityCurrent">—</strong></div>
+      <div class="comparison-box"><small>Change</small><strong id="qualityChange">—</strong></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <div class="section-header"><h2> Quality Monthly Dashboard</h2></div>
+  <div class="dashboard-grid">
+    <div class="dashboard-box"><div class="label">Tickets Number</div><div class="number" id="qualityDashEntries">0</div></div>
+    <div class="dashboard-box"><div class="label">Monitored Number</div><div class="number" id="qualityDashDays">0</div></div>
+    <div class="dashboard-box"><div class="label">Best Monitor</div><div class="number" id="qualityDashBest">—</div></div>
+    <div class="dashboard-box"><div class="label">Worst Monitor</div><div class="number" id="qualityDashWorst">—</div></div>
+    <div class="dashboard-box"><div class="label">Monthly Average</div><div class="number" id="qualityDashAvg">—</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header"><h2> Quality Today's Entries</h2></div>
+  <div class="table-wrapper metric-table">
+    <table>
+      <thead><tr><th>Time</th><th>Quality</th><th>Action</th></tr></thead>
+      <tbody id="qualityTodayBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <h2> Quality Monthly Daily Breakdown</h2>
+    <button class="btn-primary" onclick="exportMetric('quality')"> Export Report</button>
+  </div>
+  <div class="table-wrapper metric-table">
+    <table>
+      <thead><tr><th>Date</th><th>Evaluations</th><th>Average</th></tr></thead>
+      <tbody id="qualityDaysBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header"><h2> Quality Daily Average vs Target</h2></div>
+  <div class="chart-wrapper"><canvas id="qualityChart"></canvas></div>
+</div>
+  </div>
+
+</div>
+
+<!-- RESET CONFIRMATION -->
+<div class="modal-overlay" id="resetModal" onclick="if(event.target===this)closeResetModal()">
+  <div class="modal">
+    <h3>⚠️ Reset all data?</h3>
+    <p>This will permanently delete all your CSAT, AHT, Quality and Productivity entries (Calls and Tickets) for the current month. You can export the report first.</p>
+    <div class="modal-actions">
+      <button class="btn-danger" onclick="confirmReset()">Confirm</button>
+      <button class="btn-secondary" onclick="closeResetModal()">Cancel</button>
+      <button class="btn-primary" onclick="exportAllReport()">Export Report</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+let monthlyData = null;
+let csatByTeam = null;      // { calls: {...}, tickets: {...} }
+let metricsByTeam = null;   // { calls: {quality, aht, productivity}, tickets: {...} }
+let teamInitialized = false;
+
+// ================================
+// LOAD DATA
+// ================================
+let selectedMonth = null;
+let currentMonth = null;
+
+function applyData(data) {
+  if (data.teams) csatByTeam = Object.assign(csatByTeam || {}, data.teams);
+  if (data.team) initTeamOnce(data.team);
+  updateMonthPicker(data);
+  renderCsatView();
+  refreshDashboardIfOpen();
+}
+
+// ================================
+// CSAT MODE
+// Calls   : 5 levels (as always)
+// Tickets : only Good and Bad.  Good is saved as Level 5 (100) and
+//           Bad as Level 1 (0), so the normal CSAT formula is used.
+// ================================
+let lastCsatMode = null;
+
+function isTicketsMode() { return currentTeam === 'tickets'; }
+
+// Good / Bad / Mid numbers of one row (works for entries and days)
+function goodOf(o) { return (Number(o.level4) || 0) + (Number(o.level5) || 0); }
+function badOf(o, withMid) { return (Number(o.level1) || 0) + (Number(o.level2) || 0) + (withMid ? (Number(o.level3) || 0) : 0); }
+
+function levelCells(o) {
+  if (isTicketsMode()) {
+    return '<td>' + goodOf(o) + '</td><td>' + badOf(o, true) + '</td>';
+  }
+  return '<td>' + o.level1 + '</td><td>' + o.level2 + '</td><td>' + o.level3 + '</td><td>' + o.level4 + '</td><td>' + o.level5 + '</td>';
+}
+
+function renderCsatMode() {
+  const tk = isTicketsMode();
+  const el = function(id) { return document.getElementById(id); };
+
+  // entry boxes: Calls = Level 1..5, Tickets = Good + Bad only
+  ['level2', 'level3', 'level4'].forEach(function(id) {
+    el(id).parentElement.style.display = tk ? 'none' : '';
+  });
+  el('level1').parentElement.querySelector('label').textContent = tk ? 'Bad' : 'Level 1';
+  el('level5').parentElement.querySelector('label').textContent = tk ? 'Good' : 'Level 5';
+  el('level5').parentElement.style.order = tk ? '-1' : '';
+  el('csatInputsGrid').style.gridTemplateColumns = tk ? 'repeat(2, minmax(0, 220px))' : '';
+  el('csatHint').textContent = tk
+    ? '💡 Tip: enter the number of Good and Bad responses. You can also copy 2 numbers (Good, Bad) and paste them into any box.'
+    : '💡 Tip: copy 5 numbers (Level 1 → Level 5) and paste them into any Level box to fill all of them at once. You can still type manually';
+
+  // monthly dashboard boxes
+  el('dashPosLabel').textContent = tk ? 'Good' : 'Positive';
+  el('dashNegLabel').textContent = tk ? 'Bad' : 'Negative';
+  el('dashMidBox').style.display = tk ? 'none' : '';
+  el('csatDashGrid').style.gridTemplateColumns = tk ? 'repeat(4, 1fr)' : '';
+
+  // table headers + chart title
+  el('entriesHead').innerHTML = tk
+    ? '<th>Time</th><th>Good</th><th>Bad</th><th>Total</th><th>CSAT</th><th>Action</th>'
+    : '<th>Time</th><th>Level 1</th><th>Level 2</th><th>Level 3</th><th>Level 4</th><th>Level 5</th><th>Total</th><th>CSAT</th><th>Action</th>';
+  el('monthlyHead').innerHTML = tk
+    ? '<th>Date</th><th>Responses</th><th>CSAT</th><th>Good</th><th>Bad</th>'
+    : '<th>Date</th><th>Responses</th><th>CSAT</th><th>Level 1</th><th>Level 2</th><th>Level 3</th><th>Level 4</th><th>Level 5</th>';
+  el('csatChartTitle').textContent = tk ? '📈 Monthly Good / Bad' : '📈 Monthly Positive / Mid / Negative';
+
+  // changing the team: start with empty boxes
+  if (lastCsatMode !== null && lastCsatMode !== tk) {
+    ['level1', 'level2', 'level3', 'level4', 'level5'].forEach(function(id) { el(id).value = 0; });
+  }
+  lastCsatMode = tk;
+}
+
+// CSAT of the selected team (the tabs show one team at a time)
+function renderCsatView() {
+  renderCsatMode();
+
+  const v = csatByTeam && csatByTeam[currentTeam];
+  if (!v) return;
+
+  monthlyData = v.monthly;
+  updateMonthly(v.monthly);
+  updateMonthlyDashboard(v.monthly);
+  updateEntriesTable(v.todayEntries);
+  updateMonthlyTable(v.monthly);
+  drawMonthlyChart(v.monthly.dailyBreakdown || []);
+}
+
+function updateMonthPicker(data) {
+  const bar = document.getElementById('monthBar');
+  if (!data.availableMonths || !data.availableMonths.length) {
+    bar.style.display = 'none';
+    return;
+  }
+
+  currentMonth = data.currentMonth;
+  selectedMonth = data.selectedMonth;
+
+  const select = document.getElementById('monthSelect');
+  select.innerHTML = '';
+  data.availableMonths.forEach(function(m) {
+    const opt = document.createElement('option');
+    opt.value = m.key;
+    opt.textContent = m.label + (m.key === currentMonth ? ' (current)' : '');
+    select.appendChild(opt);
+  });
+  select.value = selectedMonth;
+
+  const tag = document.getElementById('monthTag');
+  const isCurrent = selectedMonth === currentMonth;
+  tag.textContent = isCurrent ? 'Current month' : 'Past month (view only)';
+  tag.className = 'month-tag' + (isCurrent ? '' : ' past');
+
+  bar.style.display = 'flex';
+}
+
+function changeMonth(key) {
+  loadData(key);
+}
+
+function loadData(month) {
+  google.script.run
+    .withSuccessHandler(function(data) {
+      document.getElementById('userEmail').textContent = data.userEmail;
+      document.getElementById('userAvatar').textContent = String(data.userEmail || '?').charAt(0).toUpperCase();
+      applyData(data);
+    })
+    .withFailureHandler(function(error) {
+      document.getElementById('userEmail').textContent = '⚠️ Unable to identify user';
+      showToast('Error loading data: ' + error.message);
+    })
+    .loadCSATData(month || '');
+}
+
+// ================================
+// GET INPUTS
+// ================================
+function getInputCounts() {
+  return {
+    level1: Math.max(0, Number(document.getElementById('level1').value) || 0),
+    level2: Math.max(0, Number(document.getElementById('level2').value) || 0),
+    level3: Math.max(0, Number(document.getElementById('level3').value) || 0),
+    level4: Math.max(0, Number(document.getElementById('level4').value) || 0),
+    level5: Math.max(0, Number(document.getElementById('level5').value) || 0)
+  };
+}
+
+// ================================
+// CALCULATE CURRENT
+// ================================
+function calculateCurrent() {
+  const counts = getInputCounts();
+  const total = counts.level1 + counts.level2 + counts.level3 + counts.level4 + counts.level5;
+
+  if (total === 0) {
+    document.getElementById('csatValue').textContent = '0.00%';
+    document.getElementById('status').textContent = 'Enter at least one response';
+    document.getElementById('status').className = 'status bad';
+    document.getElementById('needed').textContent = '';
+    return;
+  }
+
+  const weightedScore = counts.level3 * 50 + counts.level4 * 100 + counts.level5 * 100;
+  const csat = weightedScore / total;
+
+  const result = { total: total, weightedScore: weightedScore, csat: csat };
+
+  document.getElementById('csatValue').textContent = formatPercent(csat);
+  updateMonthlyStatus(result);
+}
+
+// ================================
+// SAVE ENTRY
+// ================================
+function saveEntry() {
+  const counts = getInputCounts();
+  const total = counts.level1 + counts.level2 + counts.level3 + counts.level4 + counts.level5;
+
+  if (total === 0) {
+    showToast('Please enter at least one response.');
+    return;
+  }
+
+  if (!startSaving()) return;
+
+  google.script.run
+    .withSuccessHandler(function(data) {
+      doneSaving();
+      resetInputs();
+      applyData(data);
+      showToast('✓ Entry Saved Successfully');
+    })
+    .withFailureHandler(function(error) {
+      doneSaving();
+      showToast('Error: ' + error.message);
+    })
+    .addCSATEntry(counts, 'Manual', currentTeam);
+}
+
+// ================================
+// RESET INPUT BOXES (Level 1 → 5)
+// ================================
+function resetInputs() {
+  ['level1', 'level2', 'level3', 'level4', 'level5'].forEach(function(id) {
+    document.getElementById(id).value = 0;
+  });
+  const firstBox = isTicketsMode() ? 'level5' : 'level1';
+  document.getElementById(firstBox).focus();
+  document.getElementById(firstBox).select();
+}
+
+// ================================
+// RESET LAST ENTRY (kept, no button)
+// ================================
+function resetLastEntry() {
+  if (!confirm('Are you sure you want to reset the last saved entry?')) {
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(function(data) {
+      applyData(data);
+      showToast(data.message || '✓ Last Entry Reset Successfully');
+    })
+    .withFailureHandler(function(error) {
+      showToast('Error: ' + error.message);
+    })
+    .resetLastEntry();
+}
+
+// ================================
+// DELETE SPECIFIC ENTRY
+// ================================
+function deleteEntry(rowNumber) {
+  if (!confirm('Are you sure you want to delete this entry?')) {
+    return;
+  }
+
+  if (!startSaving()) return;
+
+  google.script.run
+    .withSuccessHandler(function(data) {
+      doneSaving();
+      applyData(data);
+      showToast(data.message || '✓ Entry Deleted Successfully');
+    })
+    .withFailureHandler(function(error) {
+      doneSaving();
+      showToast('Error: ' + error.message);
+    })
+    .deleteSpecificEntry(rowNumber);
+}
+
+// ================================
+// MONTHLY RESULT
+// ================================
+function updateMonthly(data) {
+  document.getElementById('csatValue').textContent = formatPercent(data.csat);
+  updateMonthlyStatus(data);
+
+  const comparison = data.entryComparison || {};
+
+  document.getElementById('previousEntry').textContent =
+    comparison.previous === null || comparison.previous === undefined
+      ? '—'
+      : formatPercent(comparison.previous);
+
+  document.getElementById('currentEntry').textContent =
+    comparison.current === null || comparison.current === undefined
+      ? '—'
+      : formatPercent(comparison.current);
+
+  const difference = comparison.difference;
+  const differenceElement = document.getElementById('entryDifference');
+
+  if (difference === null || difference === undefined) {
+    differenceElement.textContent = '—';
+  } else {
+    const sign = difference > 0 ? '+' : '';
+    differenceElement.textContent = sign + difference.toFixed(2) + ' pts';
+    differenceElement.style.color =
+      difference > 0
+        ? '#07977A'
+        : difference < 0
+          ? '#E5484D'
+          : '#1E1E1E';
+  }
+}
+
+// ================================
+// MONTHLY STATUS
+// ================================
+function updateMonthlyStatus(data) {
+  const targetInput = Number(document.getElementById('target').value) || 93;
+  const target = targetInput <= 1 ? targetInput * 100 : targetInput;
+  const csat = Number(data.csat) || 0;
+
+  const statusElement = document.getElementById('status');
+  const neededElement = document.getElementById('needed');
+
+  if (!data.total) {
+    statusElement.textContent = 'No monthly data yet';
+    statusElement.className = 'status bad';
+    neededElement.textContent = 'Save an entry to start your monthly result.';
+    return;
+  }
+
+  if (csat >= target) {
+    statusElement.textContent = '✓ Target Achieved';
+    statusElement.className = 'status good';
+    neededElement.textContent =
+      'Your monthly CSAT is at or above the target of ' + target.toFixed(2) + '%.';
+  } else {
+    statusElement.textContent = '✗ Below Target';
+    statusElement.className = 'status bad';
+
+    if (target >= 100) {
+      neededElement.textContent =
+        'Target 100% can only be reached if all future responses are 100%.';
+    } else {
+      const needed = Math.ceil(
+        (target * data.total - data.weightedScore) / (100 - target)
+      );
+
+      neededElement.innerHTML =
+        'You need <strong>' + Math.max(0, needed) +
+        '</strong> additional 100% responses to reach ' + target.toFixed(2) + '%.';
+    }
+  }
+}
+
+// ================================
+// MONTHLY DASHBOARD
+// ================================
+function updateMonthlyDashboard(data) {
+  const positive = (Number(data.level4) || 0) + (Number(data.level5) || 0);
+  const mid = Number(data.level3) || 0;
+  const negative = (Number(data.level1) || 0) + (Number(data.level2) || 0) + (isTicketsMode() ? mid : 0);
+
+  document.getElementById('dashboardTotal').textContent = data.total || 0;
+  document.getElementById('dashboardPositive').textContent = positive;
+  document.getElementById('dashboardMid').textContent = mid;
+  document.getElementById('dashboardNegative').textContent = negative;
+  document.getElementById('dashboardEntries').textContent = data.entriesCount || 0;
+}
+
+// ================================
+// TODAY'S ENTRIES TABLE
+// ================================
+function updateEntriesTable(entries) {
+  const body = document.getElementById('entriesBody');
+  body.innerHTML = '';
+
+  if (!entries || entries.length === 0) {
+    body.innerHTML = '<tr><td colspan="' + (isTicketsMode() ? 6 : 9) + '" class="empty">No entries today.</td></tr>';
+    return;
+  }
+
+  entries.forEach(function(entry) {
+    const tr = document.createElement('tr');
+
+    const csatClass =
+      entry.csat >= (Number(document.getElementById('target').value) || 93)
+        ? 'csat-good'
+        : 'csat-bad';
+
+    tr.innerHTML =
+      '<td>' + escapeHtml(formatTimeAMPM(entry.time)) + ' &nbsp; ' + escapeHtml(getEntryDate(entry)) + '</td>' +
+      levelCells(entry) +
+      '<td>' + entry.total + '</td>' +
+      '<td class="' + csatClass + '">' + formatPercent(entry.csat) + '</td>' +
+      '<td><button class="delete-btn" onclick="deleteEntry(' + entry.rowNumber + ')"> Delete</button></td>';
+
+    body.appendChild(tr);
+  });
+}
+
+// ================================
+// MONTHLY TABLE
+// ================================
+function updateMonthlyTable(data) {
+  const body = document.getElementById('monthlyBody');
+  body.innerHTML = '';
+
+  const days = data.dailyBreakdown || [];
+
+  if (days.length === 0) {
+    body.innerHTML = '<tr><td colspan="' + (isTicketsMode() ? 5 : 8) + '" class="empty">No monthly data yet.</td></tr>';
+    return;
+  }
+
+  const target = Number(document.getElementById('target').value) || 93;
+
+  days.forEach(function(day) {
+    const date = formatShortDate(day.date);
+    const csatClass = day.csat >= target ? 'csat-good' : 'csat-bad';
+    const tr = document.createElement('tr');
+
+    tr.innerHTML =
+      '<td>' + escapeHtml(date) + '</td>' +
+      '<td>' + day.responses + '</td>' +
+      '<td class="' + csatClass + '">' + formatPercent(day.csat) + '</td>' +
+      levelCells(day);
+
+    body.appendChild(tr);
+  });
+}
+
+// ================================
+// MONTHLY CHART (clustered columns)
+// ================================
+function drawMonthlyChart(days) {
+  const canvas = document.getElementById('monthlyChart');
+  const wrapper = canvas.parentElement;
+
+  const width = wrapper.clientWidth;
+  const height = wrapper.clientHeight;
+  const ratio = window.devicePixelRatio || 1;
+
+  canvas.width = width * ratio;
+  canvas.height = height * ratio;
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+
+  if (!days || days.length === 0) {
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('No monthly data yet.', width / 2, height / 2);
+    return;
+  }
+
+  const padding = { top: 55, right: 35, bottom: 60, left: 55 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+  const baseY = padding.top + chartHeight;
+
+  // غيّر الألوان من هنا (زي الصورة: #4472C4 / #ED7D31 / #A5A5A5)
+  const series = isTicketsMode()
+    ? [
+        { key: 'positive', label: 'Good', color: '#0BC9A4' },
+        { key: 'negative', label: 'Bad',  color: '#E5484D' }
+      ]
+    : [
+        { key: 'positive', label: 'Positive', color: '#0BC9A4' },
+        { key: 'mid',      label: 'Mid',      color: '#f59e0b' },
+        { key: 'negative', label: 'Negative', color: '#E5484D' }
+      ];
+
+  let maxValue = 10;
+  days.forEach(function(day) {
+    series.forEach(function(s) {
+      maxValue = Math.max(maxValue, Number(day[s.key]) || 0);
+    });
+  });
+  maxValue = Math.ceil(maxValue / 10) * 10;
+
+  function yPosition(value) {
+    return padding.top + chartHeight - (value / maxValue) * chartHeight;
+  }
+
+  // Grid + Y labels
+  ctx.strokeStyle = '#E3E3E3';
+  ctx.lineWidth = 1;
+  ctx.fillStyle = '#6b7280';
+  ctx.font = '12px Arial';
+  ctx.textAlign = 'right';
+
+  const gridLines = 5;
+  for (let i = 0; i <= gridLines; i++) {
+    const value = (maxValue / gridLines) * i;
+    const y = Math.round(yPosition(value)) + 0.5;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(width - padding.right, y);
+    ctx.stroke();
+    ctx.fillText(Math.round(value), padding.left - 10, y + 4);
+  }
+
+  // Bars
+  const groupW = chartWidth / days.length;
+  const barW = Math.max(4, Math.min(28, (groupW * 0.7) / series.length));
+  const gap = barW > 8 ? 2 : 1;
+  const totalW = series.length * barW + (series.length - 1) * gap;
+  const labelStep = Math.max(1, Math.ceil(34 / groupW));
+
+  days.forEach(function(day, i) {
+    const center = padding.left + groupW * (i + 0.5);
+    const startX = center - totalW / 2;
+
+    series.forEach(function(s, j) {
+      const value = Number(day[s.key]) || 0;
+      const x = startX + j * (barW + gap);
+      const y = yPosition(value);
+
+      ctx.fillStyle = s.color;
+      ctx.fillRect(x, y, barW, baseY - y);
+
+      if (barW >= 10) {
+        ctx.fillStyle = '#1E1E1E';
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(value, x + barW / 2, y - 5);
+      }
+    });
+
+    if (i % labelStep === 0) {
+      ctx.fillStyle = '#1E1E1E';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(formatChartDate(day.date), center, baseY + 22);
+    }
+  });
+
+  // X axis line
+  ctx.strokeStyle = '#BFBFBF';
+  ctx.beginPath();
+  ctx.moveTo(padding.left, baseY + 0.5);
+  ctx.lineTo(width - padding.right, baseY + 0.5);
+  ctx.stroke();
+
+  // Legend
+  let legendX = padding.left;
+  series.forEach(function(s) {
+    ctx.fillStyle = s.color;
+    ctx.fillRect(legendX, 14, 12, 12);
+
+    ctx.fillStyle = '#1E1E1E';
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText(s.label, legendX + 18, 24);
+
+    legendX += s.label.length * 7 + 55;
+  });
+}
+
+// ================================
+// EXPORT REPORT
+// ================================
+function exportReport() {
+  if (
+    !monthlyData ||
+    !monthlyData.dailyBreakdown ||
+    monthlyData.dailyBreakdown.length === 0
+  ) {
+    showToast('No monthly data to export.');
+    return;
+  }
+
+  const tk = isTicketsMode();
+  let csv = tk ? 'Date,Responses,CSAT,Good,Bad\n' : 'Date,Responses,CSAT,Level 1,Level 2,Level 3,Level 4,Level 5\n';
+
+  monthlyData.dailyBreakdown.forEach(function(day) {
+    csv += (tk
+      ? [day.date, day.responses, formatPercent(day.csat), goodOf(day), badOf(day, true)]
+      : [day.date, day.responses, formatPercent(day.csat), day.level1, day.level2, day.level3, day.level4, day.level5]
+    ).join(',') + '\n';
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.download = 'CSAT_Monthly_Report_' + (selectedMonth || 'current') + '.csv';
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+// ================================
+// REFRESH TARGET
+// ================================
+function refreshMonthlyStatus() {
+  if (!monthlyData) return;
+  updateMonthly(monthlyData);
+  updateMonthlyTable(monthlyData);
+}
+
+// ================================
+// FORMATTING
+// ================================
+function formatPercent(value) {
+  return (Number(value) || 0).toFixed(2) + '%';
+}
+
+function formatTimeAMPM(value) {
+  const m = String(value).match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
+  if (!m) return value;
+
+  let h = Number(m[1]);
+  const min = m[2];
+  const sec = m[3] ? ':' + m[3] : '';
+  const ap = m[4] ? m[4].toUpperCase() : (h >= 12 ? 'PM' : 'AM');
+
+  if (!m[4]) h = h % 12 || 12;
+  return String(h).padStart(2, '0') + ':' + min + sec + ' ' + ap;
+}
+
+function getEntryDate(entry) {
+  if (entry.date) return String(entry.date).slice(0, 10);
+  const d = new Date();
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+
+function formatShortDate(dateString) {
+  const parts = String(dateString).split('-');
+
+  if (parts.length !== 3) {
+    return dateString;
+  }
+
+  const date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function formatChartDate(dateString) {
+  return formatShortDate(dateString);
+}
+
+// ================================
+// ESCAPE HTML
+// ================================
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// ================================
+// TOAST
+// ================================
+function showToast(message, sticky) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.style.display = 'block';
+
+  clearTimeout(window.toastTimer);
+
+  if (!sticky) {
+    window.toastTimer = setTimeout(function() {
+      toast.style.display = 'none';
+    }, 3000);
+  }
+}
+
+// ================================
+// SAVING LOCK
+// Shows "Saving..." at once and blocks a second click until the
+// server answers (a second click would save the entry twice).
+// ================================
+let isSaving = false;
+
+function startSaving() {
+  if (isSaving) {
+    showToast('Please wait, still saving...');
+    return false;
+  }
+  isSaving = true;
+  showToast('Saving...', true);
+  return true;
+}
+
+function doneSaving() {
+  isSaving = false;
+}
+
+// ================================
+// RESIZE CHART
+// ================================
+window.addEventListener('resize', function() {
+  if (monthlyData && monthlyData.dailyBreakdown) {
+    drawMonthlyChart(monthlyData.dailyBreakdown);
+  }
+});
+
+// ================================
+// PASTE 5 NUMBERS AT ONCE
+// ================================
+['level1', 'level2', 'level3', 'level4', 'level5'].forEach(function(id) {
+  document.getElementById(id).addEventListener('paste', function(e) {
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    const parts = text.trim().split(/[\s,;]+/).filter(Boolean);
+
+    // Single number: normal paste
+    if (parts.length < 2) return;
+
+    e.preventDefault();
+
+    const nums = parts.map(Number);
+
+    // Tickets: 2 numbers = Good, Bad
+    if (isTicketsMode()) {
+      if (parts.length !== 2 || nums.some(isNaN) || nums.some(function(n) { return n < 0; })) {
+        showToast('Paste 2 numbers (Good, Bad). Found: ' + parts.length);
+        return;
+      }
+      document.getElementById('level5').value = nums[0];
+      document.getElementById('level1').value = nums[1];
+      showToast('✓ Good / Bad filled from pasted data');
+      return;
+    }
+
+    if (parts.length !== 5 || nums.some(isNaN) || nums.some(function(n) { return n < 0; })) {
+      showToast('Paste 5 numbers (Level 1 to Level 5). Found: ' + parts.length);
+      return;
+    }
+
+    nums.forEach(function(n, i) {
+      document.getElementById('level' + (i + 1)).value = n;
+    });
+
+    showToast('✓ Levels filled from pasted data');
+  });
+});
+
+// ================================
+// START
+// ================================
+window.onload = function() { loadData(); };
+
+// ================================
+// QUALITY + AHT
+// ================================
+let metricsData = null;
+
+function mmssToSec(t) {
+  const m = String(t).trim().match(/^(\d{1,3}):([0-5]?\d)$/);
+  return m ? Number(m[1]) * 60 + Number(m[2]) : NaN;
+}
+
+function secToMMSS(sec) {
+  const s = Math.round(Math.abs(Number(sec) || 0));
+  const mm = Math.floor(s / 60), ss = s % 60;
+  return (mm < 10 ? '0' : '') + mm + ':' + (ss < 10 ? '0' : '') + ss;
+}
+
+const EXTRA = {
+  quality: {
+    title: 'Quality', higherIsBetter: true,
+    parseTarget: function(v) { return Number(String(v).replace('%', '')); },
+    fmt: function(v) { return Math.round(Number(v) || 0) + '%'; },                     // averages: 90.70 -> 91%
+    fmtEntry: function(v) { return (Math.round((Number(v) || 0) * 100) / 100) + '%'; },   // one monitor: 88.5 -> 88.5%
+    short: function(v) { return String(Math.round(Number(v) || 0)); },
+    axis: function(v) { return Math.round(v) + '%'; },
+    diff: function(d) { return (d > 0 ? '+' : '') + (Math.round(d * 100) / 100) + ' pts'; }
+  },
+  aht: {
+    title: 'AHT', higherIsBetter: false,
+    parseTarget: mmssToSec,
+    fmt: secToMMSS,
+    short: secToMMSS,
+    axis: secToMMSS,
+    diff: function(d) { return (d > 0 ? '+' : d < 0 ? '-' : '') + secToMMSS(d); }
+  }
+};
+
+EXTRA.productivity = {
+  title: 'Productivity', higherIsBetter: true,
+  parseTarget: function(v) { return Number(String(v).trim()); },
+  fmt: function(v) { return String(Math.round((Number(v) || 0) * 100) / 100); },
+  short: function(v) { return String(Math.round((Number(v) || 0) * 10) / 10); },
+  axis: function(v) { return String(Math.round(v)); },
+  diff: function(d) { return (d > 0 ? '+' : '') + String(Math.round(d * 100) / 100); }
+};
+
+// Quality is judged on the rounded number (what you see is what is judged)
+function judged(key, v) { return key === 'quality' ? Math.round(v) : v; }
+
+// a single entry (one monitor) keeps its decimals, averages do not
+function entryFmt(key, v) { const c = EXTRA[key]; return c.fmtEntry ? c.fmtEntry(v) : c.fmt(v); }
+
+function getMetricTarget(key) {
+  const t = EXTRA[key].parseTarget(document.getElementById(key + 'Target').value);
+  return (isFinite(t) && t > 0) ? t : NaN;
+}
+
+function isMetricGood(key, value, target) {
+  return EXTRA[key].higherIsBetter ? value >= target : value <= target;
+}
+
+// ================================
+// LOAD / SAVE / DELETE
+// ================================
+function applyMetrics(d) {
+  if (d.settings) applySettings(d.settings);
+
+  // answer of a save / delete: only one metric of one team changed
+  if (d.update) {
+    metricsByTeam = metricsByTeam || {};
+    metricsByTeam[d.update.team] = metricsByTeam[d.update.team] || {};
+    metricsByTeam[d.update.team][d.update.metric] = d.update.data;
+    renderMetricsView();
+    refreshDashboardIfOpen();
+    return;
+  }
+
+  metricsByTeam = d.teams || metricsByTeam;
+  if (d.team) initTeamOnce(d.team);
+  renderMetricsView();
+  refreshDashboardIfOpen();
+}
+
+// Quality / AHT / Productivity of the selected team
+function renderMetricsView() {
+  if (!metricsByTeam) return;
+  metricsData = metricsByTeam[currentTeam] || metricsByTeam.calls;
+  renderMetric('quality');
+  renderMetric('aht');
+  renderMetric('productivity');
+}
+
+function loadMetrics() {
+  google.script.run
+    .withSuccessHandler(applyMetrics)
+    .withFailureHandler(function(error) {
+      showToast('Error loading Quality/AHT: ' + error.message);
+    })
+    .loadMetricsData();
+}
+
+function saveMetric(key) {
+  if (key === 'quality') { saveQualityEntries(); return; }
+
+  const input = document.getElementById(key + 'Value');
+  const raw = input.value.trim();
+
+  if (!raw) {
+    showToast('Please enter a value first.');
+    return;
+  }
+
+  if (!startSaving()) return;
+
+  google.script.run
+    .withSuccessHandler(function(d) {
+      doneSaving();
+      input.value = '';
+      applyMetrics(d);
+      showToast('✓ ' + EXTRA[key].title + ' Entry Saved Successfully');
+    })
+    .withFailureHandler(function(error) {
+      doneSaving();
+      showToast('Error: ' + error.message);
+    })
+    .addMetricEntry(key, raw, currentTeam);
+}
+
+function resetMetricInput(key) {
+  if (key === 'quality') { resetQualityInputs(); return; }
+
+  const input = document.getElementById(key + 'Value');
+  input.value = '';
+  input.focus();
+}
+
+function deleteMetric(key, rowNumber) {
+  if (!confirm('Are you sure you want to delete this entry?')) {
+    return;
+  }
+
+  if (!startSaving()) return;
+
+  google.script.run
+    .withSuccessHandler(function(d) {
+      doneSaving();
+      applyMetrics(d);
+      showToast('✓ Entry Deleted Successfully');
+    })
+    .withFailureHandler(function(error) {
+      doneSaving();
+      showToast('Error: ' + error.message);
+    })
+    .deleteMetricEntry(key, rowNumber);
+}
+
+// ================================
+// RENDER
+// ================================
+function renderMetric(key) {
+  if (!metricsData) return;
+
+  const c = EXTRA[key];
+  const d = metricsData[key];
+  const m = d.monthly;
+  const target = getMetricTarget(key);
+  const hasTarget = !isNaN(target);
+
+  const avgEl = document.getElementById(key + 'Avg');
+  const statusEl = document.getElementById(key + 'Status');
+  const neededEl = document.getElementById(key + 'Needed');
+
+  // ---- Monthly result ----
+  if (key === 'productivity') {
+    renderProductivityToday(d, m, target, hasTarget, avgEl, statusEl, neededEl);
+  } else if (!m.entriesCount) {
+    avgEl.textContent = '—';
+    statusEl.textContent = 'No monthly data yet';
+    statusEl.className = 'status bad';
+    neededEl.textContent = 'Save an entry to start your monthly result.';
+  } else {
+    avgEl.textContent = c.fmt(m.avg);
+
+    if (!hasTarget) {
+      statusEl.textContent = 'Enter a valid target';
+      statusEl.className = 'status bad';
+      neededEl.textContent = '';
+    } else if (isMetricGood(key, judged(key, m.avg), target)) {
+      statusEl.textContent = '✓ Target Achieved';
+      statusEl.className = 'status good';
+      neededEl.textContent = 'Your monthly ' + c.title + ' is on target (' + c.fmt(target) + ').';
+    } else {
+      statusEl.textContent = key === 'aht' ? '✗ Above Target' : '✗ Below Target';
+      statusEl.className = 'status bad';
+
+      if (key === 'quality') {
+        if (target >= 100) {
+          neededEl.textContent = 'Target 100% can only be reached if all future evaluations are 100%.';
+        } else {
+          // the average is rounded, so 'target - 0.5' is enough to show the target
+          const tq = target - 0.5;
+          const needed = Math.max(0, Math.ceil((tq * m.entriesCount - m.sum) / (100 - tq)));
+          neededEl.innerHTML = 'You need <strong>' + needed + '</strong> additional 100% evaluations to reach ' + c.fmt(target) + '.';
+        }
+      } else if (key === 'productivity') {
+        neededEl.innerHTML = 'Daily average is <strong>' + c.fmt(target - m.avg) + '</strong> below the target of ' + c.fmt(target) + ' (month total: ' + c.fmt(m.sum) + ').';
+      } else {
+        neededEl.innerHTML = 'Your monthly AHT is <strong>' + secToMMSS(m.avg - target) + '</strong> above the target of ' + c.fmt(target) + '.';
+      }
+    }
+  }
+
+  // ---- Previous / Current / Change ----
+  const cmp = m.entryComparison || {};
+  document.getElementById(key + 'Previous').textContent =
+    (cmp.previous === null || cmp.previous === undefined) ? '—' : entryFmt(key, cmp.previous);
+  document.getElementById(key + 'Current').textContent =
+    (cmp.current === null || cmp.current === undefined) ? '—' : entryFmt(key, cmp.current);
+
+  const changeEl = document.getElementById(key + 'Change');
+  if (cmp.difference === null || cmp.difference === undefined) {
+    changeEl.textContent = '—';
+    changeEl.style.color = '';
+  } else {
+    changeEl.textContent = c.diff(cmp.difference);
+    const improved = c.higherIsBetter ? cmp.difference > 0 : cmp.difference < 0;
+    const worse = c.higherIsBetter ? cmp.difference < 0 : cmp.difference > 0;
+    changeEl.style.color = improved ? '#07977A' : worse ? '#E5484D' : '#1E1E1E';
+  }
+
+  // ---- Dashboard ----
+  const days = m.dailyBreakdown || [];
+  let best = null, worst = null;
+  days.forEach(function(day) {
+    if (best === null || (c.higherIsBetter ? day.avg > best : day.avg < best)) best = day.avg;
+    if (worst === null || (c.higherIsBetter ? day.avg < worst : day.avg > worst)) worst = day.avg;
+  });
+
+  // Quality: the best and the worst single monitor of the month (not the day averages)
+  if (key === 'quality') {
+    best = (m.maxValue === undefined || m.maxValue === null) ? null : m.maxValue;
+    worst = (m.minValue === undefined || m.minValue === null) ? null : m.minValue;
+  }
+
+  document.getElementById(key + 'DashEntries').textContent = m.entriesCount || 0;
+  const daysBox = document.getElementById(key + 'DashDays');
+  if (daysBox) daysBox.textContent = days.length;
+  document.getElementById(key + 'DashBest').textContent = best === null ? '—' : (key === 'quality' ? entryFmt(key, best) : c.fmt(best));
+  document.getElementById(key + 'DashWorst').textContent = worst === null ? '—' : (key === 'quality' ? entryFmt(key, worst) : c.fmt(worst));
+  document.getElementById(key + 'DashAvg').textContent = m.entriesCount ? c.fmt(m.avg) : '—';
+
+  // ---- Today's entries ----
+  const todayBody = document.getElementById(key + 'TodayBody');
+  if (!d.todayEntries.length) {
+    todayBody.innerHTML = '<tr><td colspan="3" class="empty">No entries today.</td></tr>';
+  } else {
+    todayBody.innerHTML = d.todayEntries.map(function(e) {
+      const cls = (hasTarget && key !== 'productivity') ? (isMetricGood(key, e.value, target) ? 'csat-good' : 'csat-bad') : '';
+      return '<tr>' +
+        '<td>' + escapeHtml(formatTimeAMPM(e.time)) + '</td>' +
+        '<td class="' + cls + '">' + entryFmt(key, e.value) + '</td>' +
+        '<td><button class="delete-btn" onclick="deleteMetric(\'' + key + '\',' + e.rowNumber + ')">🗑️ Delete</button></td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  // ---- Daily breakdown ----
+  const daysBody = document.getElementById(key + 'DaysBody');
+  if (!days.length) {
+    daysBody.innerHTML = '<tr><td colspan="3" class="empty">No monthly data yet.</td></tr>';
+  } else {
+    daysBody.innerHTML = days.map(function(day) {
+      const cls = hasTarget ? (isMetricGood(key, judged(key, day.avg), target) ? 'csat-good' : 'csat-bad') : '';
+      return '<tr>' +
+        '<td>' + escapeHtml(formatShortDate(day.date)) + '</td>' +
+        '<td>' + day.count + '</td>' +
+        '<td class="' + cls + '">' + c.fmt(day.avg) + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  drawMetricChart(key);
+}
+
+// ================================
+// PRODUCTIVITY: TODAY vs DAILY TARGET
+// ================================
+function renderProductivityToday(d, m, target, hasTarget, avgEl, statusEl, neededEl) {
+  const c = EXTRA.productivity;
+  const entries = d.todayEntries || [];
+  const todayTotal = entries.reduce(function(sum, e) { return sum + e.value; }, 0);
+  const monthLine = m.entriesCount
+    ? ' (Month total: ' + c.fmt(m.sum) + ' | Daily average: ' + c.fmt(m.avg) + ')'
+    : '';
+
+  if (!entries.length) {
+    avgEl.textContent = '—';
+    statusEl.textContent = 'No entries today yet';
+    statusEl.className = 'status bad';
+    neededEl.textContent = (hasTarget ? 'Today\'s target is ' + c.fmt(target) + '.' : 'Enter a valid target.') + monthLine;
+    return;
+  }
+
+  avgEl.textContent = c.fmt(todayTotal);
+
+  if (!hasTarget) {
+    statusEl.textContent = 'Enter a valid target';
+    statusEl.className = 'status bad';
+    neededEl.textContent = monthLine;
+  } else if (todayTotal >= target) {
+    statusEl.textContent = '✓ Today\'s Target Achieved';
+    statusEl.className = 'status good';
+    neededEl.textContent = 'Today\'s Productivity is on target (' + c.fmt(target) + ').' + monthLine;
+  } else {
+    statusEl.textContent = '✗ Below Today\'s Target';
+    statusEl.className = 'status bad';
+    neededEl.innerHTML = 'Today\'s Productivity is below the target (' + c.fmt(target) + '). You need <strong>' + c.fmt(target - todayTotal) + '</strong> more today.' + monthLine;
+  }
+}
+
+// ================================
+// CHART (daily average + target line)
+// ================================
+function drawMetricChart(key) {
+  const c = EXTRA[key];
+  const days = metricsData[key].monthly.dailyBreakdown || [];
+  const target = getMetricTarget(key);
+
+  const canvas = document.getElementById(key + 'Chart');
+  const wrapper = canvas.parentElement;
+  const width = wrapper.clientWidth;
+  const height = wrapper.clientHeight;
+  const ratio = window.devicePixelRatio || 1;
+  if (!width) return;
+
+  canvas.width = width * ratio;
+  canvas.height = height * ratio;
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+
+  if (!days.length) {
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('No monthly data yet.', width / 2, height / 2);
+    return;
+  }
+
+  const padding = { top: 40, right: 35, bottom: 60, left: 65 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+  const baseY = padding.top + chartHeight;
+
+  let maxValue = 0;
+  days.forEach(function(day) { maxValue = Math.max(maxValue, day.avg); });
+  if (!isNaN(target)) maxValue = Math.max(maxValue, target);
+
+  if (key === 'quality') {
+    maxValue = 100;
+  } else if (key === 'productivity') {
+    maxValue = Math.max(10, Math.ceil((maxValue * 1.15) / 10) * 10);
+  } else {
+    maxValue = Math.max(60, Math.ceil((maxValue * 1.15) / 60) * 60);
+  }
+
+  function yPosition(value) {
+    return padding.top + chartHeight - (value / maxValue) * chartHeight;
+  }
+
+  // Grid + Y labels
+  ctx.strokeStyle = '#E3E3E3';
+  ctx.lineWidth = 1;
+  ctx.fillStyle = '#6b7280';
+  ctx.font = '12px Arial';
+  ctx.textAlign = 'right';
+
+  const gridLines = 5;
+  for (let i = 0; i <= gridLines; i++) {
+    const value = (maxValue / gridLines) * i;
+    const y = Math.round(yPosition(value)) + 0.5;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(width - padding.right, y);
+    ctx.stroke();
+    ctx.fillText(c.axis(value), padding.left - 10, y + 4);
+  }
+
+  // Bars
+  const groupW = chartWidth / days.length;
+  const barW = Math.max(6, Math.min(44, groupW * 0.6));
+  const labelStep = Math.max(1, Math.ceil(34 / groupW));
+
+  days.forEach(function(day, i) {
+    const center = padding.left + groupW * (i + 0.5);
+    const x = center - barW / 2;
+    const y = yPosition(day.avg);
+
+    ctx.fillStyle = isNaN(target)
+      ? '#0BC9A4'
+      : (isMetricGood(key, judged(key, day.avg), target) ? '#0BC9A4' : '#E5484D');
+    ctx.fillRect(x, y, barW, baseY - y);
+
+    if (barW >= 30) {
+      ctx.fillStyle = '#1E1E1E';
+      ctx.font = 'bold 11px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(c.short(day.avg), center, y - 5);
+    }
+
+    if (i % labelStep === 0) {
+      ctx.fillStyle = '#1E1E1E';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(formatChartDate(day.date), center, baseY + 22);
+    }
+  });
+
+  // X axis line
+  ctx.strokeStyle = '#BFBFBF';
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(padding.left, baseY + 0.5);
+  ctx.lineTo(width - padding.right, baseY + 0.5);
+  ctx.stroke();
+
+  // Target line
+  if (!isNaN(target)) {
+    const ty = Math.round(yPosition(target)) + 0.5;
+    ctx.strokeStyle = '#1E1E1E';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(padding.left, ty);
+    ctx.lineTo(width - padding.right, ty);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#1E1E1E';
+    ctx.font = 'bold 12px Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText('Target ' + c.fmt(target), padding.left, padding.top - 14);
+  }
+}
+
+// ================================
+// EXPORT REPORT
+// ================================
+function exportMetric(key) {
+  const c = EXTRA[key];
+  const days = metricsData && metricsData[key].monthly.dailyBreakdown;
+
+  if (!days || days.length === 0) {
+    showToast('No monthly data to export.');
+    return;
+  }
+
+  let csv = 'Date,Entries,Average ' + c.title + '\n';
+  days.forEach(function(day) {
+    csv += [day.date, day.count, c.fmt(day.avg)].join(',') + '\n';
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.download = c.title + '_Monthly_Report.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+
+// ================================
+// TABS
+// ================================
+function switchTab(name) {
+  if (name === 'aht' && currentTeam === 'tickets') name = 'csat';
+  ['csat', 'aht', 'quality', 'productivity', 'dashboard'].forEach(function(t) {
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+    document.getElementById('tabBtn-' + t).classList.toggle('active', t === name);
+  });
+
+  if (name === 'csat') {
+    if (monthlyData && monthlyData.dailyBreakdown) drawMonthlyChart(monthlyData.dailyBreakdown);
+  } else if (name === 'dashboard') {
+    renderDashboard();
+  } else if (metricsData) {
+    drawMetricChart(name);
+  }
+}
+
+
+// ================================
+// QUALITY: MULTIPLE MONITORING SCORES
+// ================================
+function addEvalInput() {
+  const row = document.getElementById('qualityInputs');
+  const btn = document.getElementById('addEvalBtn');
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'eval-input';
+  input.placeholder = 'Score';
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') saveMetric('quality');
+  });
+
+  row.insertBefore(input, btn);
+  input.focus();
+}
+
+function resetQualityInputs() {
+  const inputs = document.querySelectorAll('#qualityInputs .eval-input');
+  inputs.forEach(function(el, i) {
+    if (i < 2) el.value = '';
+    else el.remove();
+  });
+  if (inputs.length) inputs[0].focus();
+}
+
+function saveQualityEntries() {
+  const values = Array.prototype.map.call(
+    document.querySelectorAll('#qualityInputs .eval-input'),
+    function(el) { return el.value.trim(); }
+  ).filter(Boolean);
+
+  if (!values.length) {
+    showToast('Please enter at least one score.');
+    return;
+  }
+
+  if (!startSaving()) return;
+
+  google.script.run
+    .withSuccessHandler(function(d) {
+      doneSaving();
+      resetQualityInputs();
+      applyMetrics(d);
+      showToast('✓ ' + values.length + (values.length === 1 ? ' Quality Entry Saved' : ' Quality Entries Saved'));
+    })
+    .withFailureHandler(function(error) {
+      doneSaving();
+      showToast('Error: ' + error.message);
+    })
+    .addMetricEntries('quality', values, currentTeam);
+}
+
+// ================================
+// QUALITY: CALCULATE (preview only, nothing is saved)
+// ================================
+function calculateQuality() {
+  const raw = Array.prototype.map.call(
+    document.querySelectorAll('#qualityInputs .eval-input'),
+    function(el) { return el.value.trim(); }
+  ).filter(Boolean);
+
+  const avgEl = document.getElementById('qualityAvg');
+  const statusEl = document.getElementById('qualityStatus');
+  const neededEl = document.getElementById('qualityNeeded');
+
+  if (!raw.length) {
+    avgEl.textContent = '0.00%';
+    statusEl.textContent = 'Enter at least one score';
+    statusEl.className = 'status bad';
+    neededEl.textContent = '';
+    return;
+  }
+
+  const nums = raw.map(function(v) { return Number(String(v).replace('%', '')); });
+
+  if (nums.some(function(n) { return !isFinite(n) || n < 0 || n > 100; })) {
+    showToast('Each score must be a number between 0 and 100.');
+    return;
+  }
+
+  const sum = nums.reduce(function(a, b) { return a + b; }, 0);
+  const avg = sum / nums.length;
+  const target = getMetricTarget('quality');
+
+  avgEl.textContent = EXTRA.quality.fmt(avg);
+
+  if (isNaN(target)) {
+    statusEl.textContent = 'Enter a valid target';
+    statusEl.className = 'status bad';
+    neededEl.textContent = '';
+    return;
+  }
+
+  if (Math.round(avg) >= target) {
+    statusEl.textContent = '✓ Target Achieved';
+    statusEl.className = 'status good';
+    neededEl.textContent =
+      'Average of ' + nums.length + (nums.length === 1 ? ' score' : ' scores') +
+      ' is at or above the target of ' + EXTRA.quality.fmt(target) + '.';
+  } else {
+    statusEl.textContent = '✗ Below Target';
+    statusEl.className = 'status bad';
+
+    if (target >= 100) {
+      neededEl.textContent = 'Target 100% can only be reached if all scores are 100%.';
+    } else {
+      const tq = target - 0.5;
+      const needed = Math.max(0, Math.ceil((tq * nums.length - sum) / (100 - tq)));
+      neededEl.innerHTML =
+        'You need <strong>' + needed + '</strong> additional 100% scores to reach ' + EXTRA.quality.fmt(target) + '.';
+    }
+  }
+}
+
+// ================================
+// DASHBOARD (month to date)
+// ================================
+function dashRow(label, value) {
+  return '<div class="dash-row"><span>' + label + '</span><strong>' + value + '</strong></div>';
+}
+
+// ============================================================
+// KPI WEIGHTS + TARGETS PER TEAM
+// The real numbers are read from the 'Settings' tab of the Google Sheet
+// every time the page opens (the manager edits them there).
+// The numbers below are only the fallback, used if the sheet cannot be read.
+//   weights    : % of each KPI in the dashboard (not listed = not counted)
+//   attendance : % of attendance
+//   targets    : Csat % | Aht in seconds | Quality % | Productivity per day
+// ============================================================
+const SETTINGS_FILL_TABS = true;   // true = the target boxes of the tabs start with the Settings numbers
+
+const TEAM_KPIS = {
+  calls:   { label: 'Calls',   attendance: 25, csatTarget: 94, productivityTarget: 40,
+             targets: { Csat: 94, Aht: 240, Quality: 95 },
+             weights: { Csat: 25, Aht: 15, Quality: 35 } },
+  tickets: { label: 'Tickets', attendance: 15, csatTarget: 90, productivityTarget: 90,
+             targets: { Csat: 90, Quality: 95, Productivity: 90 },
+             weights: { Csat: 25, Quality: 35, Productivity: 25 } }
+};
+let settingsWarnings = [];
+let currentTeam = 'calls';
+
+function getTeamCfg() { return TEAM_KPIS[currentTeam] || TEAM_KPIS.calls; }
+function getWeights() { return getTeamCfg().weights; }
+
+// Productivity target is different for each team.
+// The value typed for a team is remembered while the page is open.
+const prodTargets = {
+  calls: TEAM_KPIS.calls.productivityTarget,
+  tickets: TEAM_KPIS.tickets.productivityTarget
+};
+
+function saveProdTarget(value) {
+  prodTargets[currentTeam] = value;
+  renderMetric('productivity');
+}
+
+function syncProductivityTarget() {
+  const input = document.getElementById('productivityTarget');
+  if (input) input.value = prodTargets[currentTeam];
+
+  const label = document.getElementById('productivityTargetLabel');
+  if (label) label.textContent = 'Target (per day) - ' + getTeamCfg().label;
+}
+
+function initTeamOnce(team) {
+  if (teamInitialized) return;
+  teamInitialized = true;
+  applyTeam(team);
+}
+
+function applyTeam(team) {
+  if (!TEAM_KPIS[team]) team = 'calls';
+  currentTeam = team;
+
+  const sel = document.getElementById('teamSelect');
+  if (sel) sel.value = team;
+
+  Array.prototype.forEach.call(document.querySelectorAll('.team-name'), function(el) {
+    el.textContent = TEAM_KPIS[team].label;
+  });
+
+  const hasAht = TEAM_KPIS[team].weights.Aht !== undefined;
+  document.getElementById('tabBtn-aht').style.display = hasAht ? '' : 'none';
+  if (!hasAht && document.getElementById('tab-aht').classList.contains('active')) switchTab('csat');
+
+  fillTargetsFromSettings();
+  syncProductivityTarget();
+  renderCsatView();
+  renderMetricsView();
+  refreshDashboardIfOpen();
+}
+
+function changeTeam(team) {
+  teamInitialized = true;
+  applyTeam(team);
+
+  google.script.run
+    .withFailureHandler(function(error) { showToast('Error saving team: ' + error.message); })
+    .saveUserTeam(team);
+}
+
+function refreshDashboardIfOpen() {
+  const panel = document.getElementById('tab-dashboard');
+  if (panel && panel.classList.contains('active')) renderDashboard();
+}
+
+// ================================
+// DASHBOARD (month to date)
+// One block per team the agent worked in this month.
+// Only one team  -> normal dashboard.
+// Both teams     -> Calls block + Tickets block + Overall.
+// ================================
+const TEAM_ORDER = ['calls', 'tickets'];
+const KPI_NAMES = { Csat: 'CSAT', Aht: 'AHT', Quality: 'Quality', Productivity: 'Productivity' };
+
+function teamCsat(team) {
+  const v = csatByTeam && csatByTeam[team];
+  return v ? v.monthly : null;
+}
+
+function teamMetric(team, key) {
+  const v = metricsByTeam && metricsByTeam[team] && metricsByTeam[team][key];
+  return v ? v.monthly : null;
+}
+
+function teamHasData(team) {
+  const c = teamCsat(team);
+  if (c && c.entriesCount > 0) return true;
+
+  return ['quality', 'aht', 'productivity'].some(function(k) {
+    const m = teamMetric(team, k);
+    return kpiOn(team, k) && m && m.entriesCount > 0;
+  });
+}
+
+// number of different days with at least one entry in that team
+function teamDaysWorked(team) {
+  const days = {};
+
+  const c = teamCsat(team);
+  if (c) (c.dailyBreakdown || []).forEach(function(d) { days[d.date] = 1; });
+
+  ['quality', 'aht', 'productivity'].forEach(function(k) {
+    const m = teamMetric(team, k);
+    if (kpiOn(team, k) && m) (m.dailyBreakdown || []).forEach(function(d) { days[d.date] = 1; });
+  });
+
+  return Object.keys(days).length;
+}
+
+// Quality does not depend on the team: for the dashboard it is calculated
+// from ALL the agent's Quality entries (Calls + Tickets together),
+// so both team blocks show the same Quality.
+function sharedQualityMonthly() {
+  let sum = 0, count = 0;
+  const byDate = {};
+
+  TEAM_ORDER.forEach(function(t) {
+    const m = teamMetric(t, 'quality');
+    if (!m) return;
+
+    sum += Number(m.sum) || 0;
+    count += Number(m.entriesCount) || 0;
+
+    (m.dailyBreakdown || []).forEach(function(d) {
+      const k = byDate[d.date] || (byDate[d.date] = { date: d.date, count: 0, sum: 0 });
+      k.count += d.count;
+      k.sum += (d.sum !== undefined ? d.sum : d.avg * d.count);
+    });
+  });
+
+  return {
+    avg: count ? sum / count : 0,
+    sum: sum,
+    entriesCount: count,
+    dailyBreakdown: Object.keys(byDate).sort().map(function(date) {
+      const k = byDate[date];
+      return { date: date, count: k.count, avg: k.sum / k.count, sum: k.sum };
+    })
+  };
+}
+
+// ================================
+// SETTINGS (from the 'Settings' tab of the sheet)
+// ================================
+function applySettings(settings) {
+  settingsWarnings = settings.warnings || [];
+
+  TEAM_ORDER.forEach(function(t) {
+    const st = settings.teams && settings.teams[t];
+    if (!st) return;                               // team missing in the sheet -> built-in numbers
+
+    const cfg = TEAM_KPIS[t];
+    cfg.weights = st.weights;
+    if (st.attendance !== null && st.attendance !== undefined) cfg.attendance = st.attendance;
+    cfg.targets = st.targets || {};
+
+    if (cfg.targets.Csat !== undefined) cfg.csatTarget = cfg.targets.Csat;
+    if (cfg.targets.Productivity !== undefined) {
+      cfg.productivityTarget = cfg.targets.Productivity;
+      prodTargets[t] = cfg.targets.Productivity;
+    }
+  });
+
+  // refresh everything that depends on the numbers (tabs shown, targets, dashboard)
+  if (teamInitialized) applyTeam(currentTeam);
+}
+
+// the target boxes of the tabs start with the numbers of the Settings sheet
+function fillTargetsFromSettings() {
+  if (!SETTINGS_FILL_TABS) return;
+
+  const t = getTeamCfg().targets || {};
+
+  if (t.Csat !== undefined) document.getElementById('target').value = t.Csat;
+  if (t.Aht !== undefined) document.getElementById('ahtTarget').value = secToMMSS(t.Aht);
+  if (t.Quality !== undefined) document.getElementById('qualityTarget').value = t.Quality;
+}
+
+// CSAT target of each team, used only to calculate the dashboard
+function csatTargetFor(team) {
+  let t = Number(TEAM_KPIS[team].csatTarget);
+  if (!isFinite(t) || t <= 0) t = 93;
+  return t <= 1 ? t * 100 : t;
+}
+
+// Does this team have a weight for the KPI? (dashboard only)
+function kpiOn(team, key) {
+  const cap = { csat: 'Csat', aht: 'Aht', quality: 'Quality', productivity: 'Productivity' }[key];
+  return TEAM_KPIS[team].weights[cap] !== undefined;
+}
+
+function targetFor(key, team) {
+  const cap = { csat: 'Csat', aht: 'Aht', quality: 'Quality', productivity: 'Productivity' }[key];
+  const st = TEAM_KPIS[team].targets && TEAM_KPIS[team].targets[cap];
+  if (st !== undefined && isFinite(st) && st > 0) return st;
+
+  // no target in Settings -> the value typed in the tab
+  if (key === 'productivity') {
+    const t = EXTRA.productivity.parseTarget(prodTargets[team]);
+    return (isFinite(t) && t > 0) ? t : NaN;
+  }
+  return getMetricTarget(key);
+}
+
+function kpiCard(title, weight, value, ok, statusText, rows) {
+  const earned = ok === true ? weight : 0;
+  return {
+    earned: earned,
+    html:
+      '<div class="dash-card">' +
+        '<div class="dash-title">' + title + ' <span class="dash-weight">= ' + weight + '%</span></div>' +
+        '<div class="dash-value">' + value + '</div>' +
+        '<div class="status ' + (ok === true ? 'good' : 'bad') + '">' + statusText + '</div>' +
+        rows + dashRow('KPI earned', earned + '% of ' + weight + '%') +
+      '</div>'
+  };
+}
+
+function kpiSummaryHtml(title, total, max, att, breakdown) {
+  return '' +
+    '<div class="kpi-wrap">' +
+      '<div class="kpi-main">' +
+        '<div class="kpi-label">' + title + '</div>' +
+        '<div class="kpi-big">' + total + '%</div>' +
+        '<div class="kpi-sub">' + breakdown + '</div>' +
+      '</div>' +
+      '<div class="kpi-arrows"><span>↙</span><span>↘</span></div>' +
+      '<div class="kpi-results">' +
+        '<div class="kpi-result ok">' +
+          '<div class="kpi-title">✓ Attendance OK (on time)</div>' +
+          '<div class="kpi-note">+' + att + '% added</div>' +
+          '<div class="kpi-big">' + (Math.round((total + att) * 10) / 10) + '%</div>' +
+        '</div>' +
+        '<div class="kpi-result late">' +
+          '<div class="kpi-title">✗ Late more than 1 day</div>' +
+          '<div class="kpi-note">Nothing added</div>' +
+          '<div class="kpi-big">' + total + '%</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+function buildTeamBlock(team, showTitle) {
+  const cfg = TEAM_KPIS[team];
+  const weights = cfg.weights;
+  let cards = '';
+  let total = 0, max = 0;
+  const parts = [];
+
+  function add(cap, card) {
+    cards += card.html;
+    total += card.earned;
+    max += weights[cap];
+    parts.push(KPI_NAMES[cap] + ' ' + card.earned + '%');
+  }
+
+  // ---- CSAT ----
+  if (weights.Csat !== undefined) {
+    const m = teamCsat(team);
+
+    if (!m || !m.total) {
+      add('Csat', kpiCard('CSAT', weights.Csat, '—', null, 'No data yet', ''));
+    } else {
+      const t = csatTargetFor(team);
+      const ok = m.csat >= t;
+      const diff = m.csat - t;
+      const positive = (Number(m.level4) || 0) + (Number(m.level5) || 0);
+      const negative = (Number(m.level1) || 0) + (Number(m.level2) || 0);
+
+      add('Csat', kpiCard('CSAT', weights.Csat, formatPercent(m.csat), ok, ok ? '✓ Target Achieved' : '✗ Below Target',
+        dashRow('Responses', m.total) +
+        dashRow('Entries', m.entriesCount || 0) +
+        (team === 'tickets'
+          ? dashRow('Good / Bad', positive + ' / ' + (negative + (Number(m.level3) || 0)))
+          : dashRow('Positive / Mid / Negative', positive + ' / ' + (Number(m.level3) || 0) + ' / ' + negative)) +
+        dashRow('Target', t.toFixed(2) + '%') +
+        dashRow('Vs target', (diff > 0 ? '+' : '') + diff.toFixed(2) + ' pts')));
+    }
+  }
+
+  // ---- AHT / Quality / Productivity ----
+  [['aht', 'Aht', 'AHT', 'Entries'], ['quality', 'Quality', 'Quality', 'Evaluations'], ['productivity', 'Productivity', 'Productivity', 'Entries']].forEach(function(cfgRow) {
+    const key = cfgRow[0], cap = cfgRow[1], title = cfgRow[2], countLabel = cfgRow[3];
+    if (weights[cap] === undefined) return;
+
+    const mm = key === 'quality' ? sharedQualityMonthly() : teamMetric(team, key);
+
+    if (!mm || !mm.entriesCount) {
+      add(cap, kpiCard(title, weights[cap], '—', null, 'No data yet', ''));
+      return;
+    }
+
+    const c = EXTRA[key];
+    const target = targetFor(key, team);
+    const hasTarget = !isNaN(target);
+    const ok = hasTarget ? isMetricGood(key, judged(key, mm.avg), target) : null;
+
+    let vs = '—';
+    if (hasTarget) {
+      const diff = judged(key, mm.avg) - target;
+      vs = key === 'aht'
+        ? (diff > 0 ? '+' : diff < 0 ? '-' : '') + secToMMSS(diff)
+        : key === 'productivity'
+          ? c.diff(diff)
+          : (diff > 0 ? '+' : '') + diff.toFixed(2) + ' pts';
+    }
+
+    add(cap, kpiCard(title, weights[cap], c.fmt(mm.avg), ok,
+      ok === null ? 'Enter a valid target' : ok ? '✓ Target Achieved' : (key === 'aht' ? '✗ Above Target' : '✗ Below Target'),
+      (key === 'productivity' ? dashRow('Daily Average', c.fmt(mm.avg)) + dashRow('Month Total', c.fmt(mm.sum)) : '') +
+      (key === 'quality' && showTitle ? dashRow('Counted from', 'Calls + Tickets') : '') +
+      dashRow(countLabel, mm.entriesCount) +
+      dashRow('Days Logged', (mm.dailyBreakdown || []).length) +
+      dashRow(key === 'productivity' ? 'Target / day' : 'Target', hasTarget ? c.fmt(target) : '—') +
+      dashRow('Vs target', vs)));
+  });
+
+  const att = cfg.attendance;
+  const days = teamDaysWorked(team);
+
+  const header = showTitle
+    ? '<div class="section-header"><h2>' + cfg.label + '</h2><span class="month-tag">' + days + (days === 1 ? ' working day' : ' working days') + '</span></div>'
+    : '';
+
+  return {
+    total: total, max: max, att: att, days: days,
+    html:
+      '<div class="section">' + header +
+        '<div class="dash-cards">' + cards + '</div>' +
+        '<div style="height:24px"></div>' +
+        kpiSummaryHtml(total === max ? 'Total KPI (all targets achieved)' : 'Achieved KPI', total, max, att, parts.join(' + ') + '  (max ' + max + '%)') +
+      '</div>'
+  };
+}
+
+function renderDashboard() {
+  document.getElementById('dashMonthTag').textContent =
+    new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const withData = TEAM_ORDER.filter(teamHasData);
+  let show;
+
+  if (withData.length >= 2) show = TEAM_ORDER.slice();
+  else if (withData.length === 1) show = withData;
+  else show = [currentTeam];
+
+  const blocks = show.map(function(t) { return buildTeamBlock(t, show.length > 1); });
+  let html = blocks.map(function(b) { return b.html; }).join('');
+
+  if (settingsWarnings.length) {
+    html = '<div class="warn-box">⚠️ ' + settingsWarnings.map(escapeHtml).join('<br>⚠️ ') + '</div>' + html;
+  }
+
+  // ---- Overall: weighted by working days, attendance counted once ----
+  
+
+  document.getElementById('dashSections').innerHTML = html;
+}
+
+// ================================
+// RESET ALL (current month, current user)
+// ================================
+function openResetModal() {
+  document.getElementById('resetModal').classList.add('open');
+}
+
+function closeResetModal() {
+  document.getElementById('resetModal').classList.remove('open');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeResetModal();
+});
+
+function confirmReset() {
+  closeResetModal();
+
+  if (!startSaving()) return;
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      doneSaving();
+      applyData(res.csat);
+      applyMetrics(res.metrics);
+      if (document.getElementById('tab-dashboard').classList.contains('active')) renderDashboard();
+      showToast(res.message);
+    })
+    .withFailureHandler(function(error) {
+      doneSaving();
+      showToast('Error: ' + error.message);
+    })
+    .resetAllMyData();
+}
+
+// ================================
+// EXPORT FULL REPORT (CSAT + AHT + Quality)
+// ================================
+function exportAllReport() {
+  const teamsToExport = TEAM_ORDER.filter(teamHasData);
+
+  if (!teamsToExport.length) {
+    showToast('No monthly data to export.');
+    return;
+  }
+
+  const monthLabel = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  let csv = 'Monthly Report - ' + monthLabel + '\n';
+
+  teamsToExport.forEach(function(t) {
+    const label = TEAM_KPIS[t].label;
+    const csatDays = (teamCsat(t) && teamCsat(t).dailyBreakdown) || [];
+    const ahtDays = (teamMetric(t, 'aht') && teamMetric(t, 'aht').dailyBreakdown) || [];
+    const qualityDays = (teamMetric(t, 'quality') && teamMetric(t, 'quality').dailyBreakdown) || [];
+    const productivityDays = (teamMetric(t, 'productivity') && teamMetric(t, 'productivity').dailyBreakdown) || [];
+
+    csv += '\n=== ' + label + ' ===\n';
+
+    if (csatDays.length) {
+      csv += t === 'tickets'
+        ? '\nCSAT\nDate,Responses,CSAT,Good,Bad\n'
+        : '\nCSAT\nDate,Responses,CSAT,Level 1,Level 2,Level 3,Level 4,Level 5\n';
+      csatDays.forEach(function(day) {
+        csv += (t === 'tickets'
+          ? [day.date, day.responses, formatPercent(day.csat), goodOf(day), badOf(day, true)]
+          : [day.date, day.responses, formatPercent(day.csat), day.level1, day.level2, day.level3, day.level4, day.level5]
+        ).join(',') + '\n';
+      });
+    }
+
+    if (ahtDays.length) {
+      csv += '\nAHT\nDate,Entries,Average AHT\n';
+      ahtDays.forEach(function(day) {
+        csv += [day.date, day.count, secToMMSS(day.avg)].join(',') + '\n';
+      });
+    }
+
+    if (qualityDays.length) {
+      csv += '\nQuality\nDate,Evaluations,Average Quality\n';
+      qualityDays.forEach(function(day) {
+        csv += [day.date, day.count, formatPercent(day.avg)].join(',') + '\n';
+      });
+    }
+
+    if (productivityDays.length) {
+      csv += '\nProductivity\nDate,Entries,Day Total\n';
+      productivityDays.forEach(function(day) {
+        csv += [day.date, day.count, day.avg].join(',') + '\n';
+      });
+    }
+  });
+
+  const d = new Date();
+  const stamp = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.download = 'Monthly_Report_' + stamp + '.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+
+  showToast('✓ Report exported');
+}
+
+// ================================
+// START + RESIZE
+// ================================
+window.addEventListener('resize', function() {
+  if (metricsData) {
+    ['aht', 'quality', 'productivity'].forEach(function(k) {
+      if (document.getElementById('tab-' + k).classList.contains('active')) drawMetricChart(k);
+    });
+  }
+});
+
+window.addEventListener('load', function() {
+  loadMetrics();
+});
+</script>
+
+</body>
+</html>
